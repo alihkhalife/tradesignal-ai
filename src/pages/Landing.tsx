@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/stores/authStore'
 import {
   TrendingUp,
   Brain,
@@ -45,6 +47,14 @@ const features = [
 
 export function Landing() {
   const navigate = useNavigate()
+  const { user, loading } = useAuthStore()
+
+  // Redirect to dashboard if already signed in
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [user, loading, navigate])
 
   return (
     <div className="min-h-screen bg-background">

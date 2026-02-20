@@ -8,16 +8,7 @@ export function useAuth() {
     useAuthStore()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id)
-      } else {
-        setLoading(false)
-      }
-    })
-
+    // Set up auth state listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -27,6 +18,17 @@ export function useAuth() {
         fetchProfile(session.user.id)
       } else {
         setProfile(null)
+        setLoading(false)
+      }
+    })
+
+    // Get current session (also triggers hash fragment processing for OAuth)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        fetchProfile(session.user.id)
+      } else {
         setLoading(false)
       }
     })
@@ -69,7 +71,9 @@ export function useAuth() {
   async function signInWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + '/dashboard' },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
     return { error }
   }

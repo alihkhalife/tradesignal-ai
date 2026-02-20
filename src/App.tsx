@@ -11,6 +11,7 @@ import { Journal } from '@/pages/Journal'
 import { Backtest } from '@/pages/Backtest'
 import { Indicators } from '@/pages/Indicators'
 import { Settings } from '@/pages/Settings'
+import { AuthCallback } from '@/pages/AuthCallback'
 
 function App() {
   useAuth()
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route
             element={
               <ProtectedRoute>
