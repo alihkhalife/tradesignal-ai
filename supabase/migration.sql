@@ -167,18 +167,22 @@ create policy "Users can delete own watchlists" on watchlists
   for delete using (auth.uid() = user_id);
 
 -- Auto-create profile on signup
-create or replace function handle_new_user()
+create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into profiles (id)
-  values (new.id);
+  insert into public.profiles (id)
+  values (new.id)
+  on conflict (id) do nothing;
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
-create or replace trigger on_auth_user_created
+-- Drop existing trigger first to avoid conflicts
+drop trigger if exists on_auth_user_created on auth.users;
+
+create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute function handle_new_user();
+  for each row execute function public.handle_new_user();
 
 -- Indexes for performance
 create index if not exists idx_trades_user_id on trades(user_id);

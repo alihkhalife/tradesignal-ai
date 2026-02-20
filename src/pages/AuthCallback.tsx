@@ -1,49 +1,44 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
-import { useAuthStore } from '@/stores/authStore'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 
 export function AuthCallback() {
-  const navigate = useNavigate()
-  const setUser = useAuthStore((s) => s.setUser)
-  const setSession = useAuthStore((s) => s.setSession)
-
   useEffect(() => {
-    // This page handles the OAuth redirect
-    // The hash fragment (#access_token=...) is processed by Supabase automatically
-    // We just need to wait for the session to be available and then redirect
+    // Supabase OAuth redirects here with #access_token=... in the hash fragment.
+    // The Supabase client (with detectSessionInUrl: true) automatically parses
+    // the hash and establishes the session. We listen for that event, then
+    // do a full page redirect to /dashboard so the app loads fresh with the session.
 
-    async function handleCallback() {
-      const { data: { session } } = await supabase.auth.getSession()
-
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        setSession(session)
-        setUser(session.user)
-        navigate('/dashboard', { replace: true })
-        return
-      }
-
-      // If no session yet, the hash might still be processing
-      // Listen for the auth state change
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          setSession(session)
-          setUser(session.user)
-          subscription.unsubscribe()
-          navigate('/dashboard', { replace: true })
-        }
-      })
-
-      // Safety timeout
-      setTimeout(() => {
+        // Session established — full page redirect (not React Router navigate)
+        // so the app reloads clean with the session in localStorage
         subscription.unsubscribe()
-        navigate('/login', { replace: true })
-      }, 10000)
-    }
+        window.location.href = '/dashboard'
+      }
+    })
 
-    handleCallback()
-  }, [navigate, setUser, setSession])
+    // Also check if session is already available (e.g. hash was already parsed)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        subscription.unsubscribe()
+        window.location.href = '/dashboard'
+      }
+    })
+
+    // Safety timeout — if nothing happens in 8 seconds, go to login
+    const timeout = setTimeout(() => {
+      subscription.unsubscribe()
+      window.location.href = '/login'
+    }, 8000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeout)
+    }
+  }, [])
 
   return (
     <div className="flex h-screen items-center justify-center bg-background">

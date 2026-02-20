@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/authStore'
-import { TrendingUp, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { TrendingUp, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export function Login() {
@@ -47,84 +47,94 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="mb-8 flex flex-col items-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-accent/10">
-            <TrendingUp className="h-8 w-8 text-accent" />
-          </div>
-          <h1 className="text-2xl font-bold">TradeSignal AI</h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            AI-powered trading analysis & risk management
-          </p>
+    <div className="flex min-h-screen bg-background">
+      {/* Left side - Branding */}
+      <div className="hidden w-1/2 flex-col justify-between border-r border-border bg-gradient-to-br from-accent/10 via-background to-background lg:flex" style={{ padding: '48px 48px 48px 64px' }}>
+        <div>
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </button>
         </div>
 
-        {/* Form */}
-        <div className="rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-6 text-center text-lg font-semibold">
-            {isSignUp ? 'Create an account' : 'Sign in to your account'}
-          </h2>
+        <div className="max-w-md">
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/20 backdrop-blur-sm">
+            <TrendingUp className="h-9 w-9 text-accent" />
+          </div>
+          <h1 className="mb-4 text-4xl font-bold leading-tight">
+            Trade smarter,<br />not harder.
+          </h1>
+          <p className="text-lg leading-relaxed text-text-secondary">
+            AI-powered technical analysis across multiple timeframes.
+            Get actionable signals with built-in risk management.
+          </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm text-text-secondary">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background py-2.5 pl-10 pr-4 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                  placeholder="you@example.com"
-                  required
-                />
+          <div className="mt-10 space-y-4">
+            {[
+              'Multi-timeframe MACD, RSI, EMA analysis',
+              'AI-generated entry, stop loss & take profit levels',
+              'Position sizing based on your capital & risk tolerance',
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bullish/20">
+                  <svg className="h-3.5 w-3.5 text-bullish" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-sm text-text-secondary">{item}</span>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            <div>
-              <label className="mb-1.5 block text-sm text-text-secondary">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background py-2.5 pl-10 pr-10 text-sm text-text-primary outline-none transition-colors focus:border-accent"
-                  placeholder="••••••••"
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
+        <p className="text-xs text-text-muted">
+          Not financial advice. For educational purposes only.
+        </p>
+      </div>
 
+      {/* Right side - Form */}
+      <div className="flex w-full items-center justify-center p-6 lg:w-1/2">
+        <div className="w-full max-w-[420px]">
+          {/* Mobile back button */}
+          <div className="mb-8 lg:hidden">
             <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-accent py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
-              {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
+              <ArrowLeft className="h-4 w-4" />
+              Back to home
             </button>
-          </form>
-
-          <div className="my-4 flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs text-text-muted">or</span>
-            <div className="h-px flex-1 bg-border" />
           </div>
 
+          {/* Mobile logo */}
+          <div className="mb-8 flex flex-col items-center lg:hidden">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15">
+              <TrendingUp className="h-7 w-7 text-accent" />
+            </div>
+            <h1 className="text-xl font-bold">TradeSignal AI</h1>
+          </div>
+
+          {/* Form header */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold">
+              {isSignUp ? 'Create your account' : 'Welcome back'}
+            </h2>
+            <p className="mt-2 text-sm text-text-secondary">
+              {isSignUp
+                ? 'Start analyzing markets with AI in seconds'
+                : 'Sign in to access your trading dashboard'}
+            </p>
+          </div>
+
+          {/* Google sign-in - FIRST for better UX */}
           <button
             onClick={handleGoogleSignIn}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-hover"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-text-muted/40 bg-surface px-4 py-3 text-sm font-medium text-text-primary transition-all hover:border-text-muted hover:bg-surface-hover"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -145,20 +155,82 @@ export function Login() {
             Continue with Google
           </button>
 
-          <p className="mt-4 text-center text-sm text-text-secondary">
+          {/* Divider */}
+          <div className="my-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs font-medium uppercase tracking-wider text-text-muted">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          {/* Email form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-text-secondary">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-xl border border-text-muted/40 bg-surface px-4 py-3 pl-11 text-sm text-text-primary outline-none transition-all placeholder:text-text-muted focus:border-accent focus:bg-surface-hover"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-text-secondary">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-xl border border-text-muted/40 bg-surface px-4 py-3 pl-11 pr-11 text-sm text-text-primary outline-none transition-all placeholder:text-text-muted focus:border-accent focus:bg-surface-hover"
+                  placeholder="Min. 6 characters"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted transition-colors hover:text-text-primary"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-accent py-3 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition-all hover:bg-accent-hover hover:shadow-accent/40 disabled:opacity-50 disabled:shadow-none"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  {isSignUp ? 'Creating account...' : 'Signing in...'}
+                </span>
+              ) : (
+                isSignUp ? 'Create Account' : 'Sign In'
+              )}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-text-secondary">
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-accent hover:underline"
+              className="font-medium text-accent transition-colors hover:text-accent-hover"
             >
               {isSignUp ? 'Sign in' : 'Sign up'}
             </button>
           </p>
         </div>
-
-        <p className="mt-4 text-center text-xs text-text-muted">
-          Not financial advice. For educational purposes only.
-        </p>
       </div>
     </div>
   )
