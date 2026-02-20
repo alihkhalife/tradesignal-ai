@@ -31,3 +31,4 @@ dist-ssr
 # Google client secrets
 client_secret_*.json
 supabase/client_secret_*.json
+.vercel
