@@ -3,7 +3,22 @@ import { useChartStore } from '@/stores/chartStore'
 import type { OHLCV } from '@/types/market'
 import { TIMEFRAMES } from '@/lib/constants'
 
-const BINANCE_API = 'https://api.binance.com/api/v3'
+const BINANCE_APIS = [
+  'https://api.binance.com/api/v3',
+  'https://api.binance.us/api/v3',
+]
+
+async function fetchWithFallback(path: string, signal?: AbortSignal): Promise<Response> {
+  for (const base of BINANCE_APIS) {
+    try {
+      const response = await fetch(`${base}${path}`, { signal })
+      if (response.ok) return response
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') throw err
+    }
+  }
+  throw new Error('Failed to fetch market data from all endpoints')
+}
 
 export function useMarketData() {
   const { symbol, timeframe, setCandles, setLoading } = useChartStore()
@@ -19,9 +34,9 @@ export function useMarketData() {
 
     setLoading(true)
     try {
-      const response = await fetch(
-        `${BINANCE_API}/klines?symbol=${s}&interval=${interval}&limit=500`,
-        { signal: abortRef.current.signal }
+      const response = await fetchWithFallback(
+        `/klines?symbol=${s}&interval=${interval}&limit=500`,
+        abortRef.current.signal
       )
 
       if (!response.ok) throw new Error('Failed to fetch market data')
@@ -63,8 +78,8 @@ export async function fetchMultiTimeframeData(symbol: string): Promise<Record<st
   await Promise.all(
     timeframes.map(async (interval) => {
       try {
-        const response = await fetch(
-          `${BINANCE_API}/klines?symbol=${symbol}&interval=${interval}&limit=200`
+        const response = await fetchWithFallback(
+          `/klines?symbol=${symbol}&interval=${interval}&limit=200`
         )
         const data = await response.json()
         results[interval] = data.map((k: (string | number)[]) => ({
@@ -86,7 +101,7 @@ export async function fetchMultiTimeframeData(symbol: string): Promise<Record<st
 
 export async function fetchCurrentPrice(symbol: string): Promise<number | null> {
   try {
-    const response = await fetch(`${BINANCE_API}/ticker/price?symbol=${symbol}`)
+    const response = await fetchWithFallback(`/ticker/price?symbol=${symbol}`)
     const data = await response.json()
     return parseFloat(data.price)
   } catch {
